@@ -38,7 +38,7 @@ function App() {
       } else {
         parsed = result;
       }
-    } catch (error) {
+    } catch  {
       throw new Error("AI returned invalid JSON.");
     }
 
