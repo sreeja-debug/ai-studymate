@@ -285,3 +285,19 @@
     margin-top: 8px;
   }
 }
+.correct-answer {
+  background: #dcfce7 !important;
+  border-color: #22c55e !important;
+  color: #166534 !important;
+}
+
+.wrong-answer {
+  background: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+}
+
+.options button:disabled {
+  cursor: default;
+  opacity: 1;
+}

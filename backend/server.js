@@ -14,14 +14,12 @@ const ai = new GoogleGenAI({
 app.use(cors());
 app.use(express.json());
 
-
 // Test route
 app.get("/", (req, res) => {
   res.json({
     message: "AI StudyMate backend is running"
   });
 });
-
 
 // Generate study material
 app.post("/api/generate", async (req, res) => {
@@ -38,7 +36,6 @@ app.post("/api/generate", async (req, res) => {
 
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",
-
       contents: `
 You are a study assistant.
 
@@ -97,25 +94,39 @@ ${prompt}
 
   } catch (error) {
     console.error("Gemini API ERROR:", error);
-if (error.status === 429) {
-  return res.status(429).json({
-    error: "AI usage limit reached. Please try again later."
-  });
-}
-    if (error.status === 503) {
+
+    const status = error?.status || error?.statusCode;
+    const message = error?.message || "";
+
+    // AI usage/rate limit
+    if (
+      status === 429 ||
+      message.includes("429") ||
+      message.toLowerCase().includes("resource exhausted") ||
+      message.toLowerCase().includes("quota")
+    ) {
+      return res.status(429).json({
+        error: "AI limit reached. Please try again later."
+      });
+    }
+
+    // AI service busy
+    if (status === 503) {
       return res.status(503).json({
         error: "The AI service is temporarily busy. Please try again."
       });
     }
 
-    if (error.status === 400) {
+    // Invalid request
+    if (status === 400) {
       return res.status(400).json({
         error: "Invalid request sent to the AI service."
       });
     }
 
-    if (error.status === 401 || error.status === 403) {
-      return res.status(500).json({
+    // Authentication
+    if (status === 401 || status === 403) {
+      return res.status(status).json({
         error: "Gemini API key is invalid or not authorized."
       });
     }
@@ -124,16 +135,14 @@ if (error.status === 429) {
       error: "Failed to generate study material. Please try again."
     });
   }
-});
-
+}); // <-- THIS WAS MISSING
 
 // Start server
 const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
-
-// Keep the server alive and show unexpected errors
+// Keep server alive and show unexpected errors
 process.on("uncaughtException", (error) => {
   console.error("UNCAUGHT EXCEPTION:", error);
 });

@@ -86,12 +86,21 @@ function Quiz({ quiz }) {
       <div className="options">
         {question.options.map((option, index) => (
           <button
-            key={index}
-            onClick={() => handleAnswer(index)}
-            disabled={selectedAnswer !== null}
-          >
-            {option}
-          </button>
+  key={index}
+  onClick={() => handleAnswer(index)}
+  disabled={selectedAnswer !== null}
+  className={
+    selectedAnswer !== null
+      ? index === question.answer
+        ? "correct-answer"
+        : index === selectedAnswer
+        ? "wrong-answer"
+        : ""
+      : ""
+  }
+>
+  {option}
+</button>
         ))}
       </div>
 
